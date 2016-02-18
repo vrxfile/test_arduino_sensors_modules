@@ -6,7 +6,7 @@
 #include <DHT.h>
 #include <DigitShield.h>
 
-#define DHTPIN 10
+#define DHTPIN A0
 #define DHTTYPE DHT11
 DHT dht(DHTPIN, DHTTYPE);
 
@@ -24,7 +24,7 @@ void loop() {
   float h = dht.readHumidity();
   float t = dht.readTemperature();
   // Вывод температуры
-  DigitShield.setPrecision(1);
+  DigitShield.setPrecision(2);
   DigitShield.setValue(t);
   delay(5000);
   // Вывод влажности
