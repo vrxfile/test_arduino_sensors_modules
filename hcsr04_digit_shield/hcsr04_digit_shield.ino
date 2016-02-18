@@ -1,5 +1,5 @@
 /*
-  Пример работы с УЗ датчиком расстояния HC-SR04
+  Пример работы с датчиком HC-SR04 и платой Digit Shield
   Created by Rostislav Varzar
 */
 #include <DigitShield.h>
