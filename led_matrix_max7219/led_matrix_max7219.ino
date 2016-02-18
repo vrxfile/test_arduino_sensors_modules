@@ -60,7 +60,7 @@ void loop() {
   lc.setRow(0, 5, smile_sad[5]);
   lc.setRow(0, 6, smile_sad[6]);
   lc.setRow(0, 7, smile_sad[7]);
-  delay(5000);
+  delay(500);
   lc.setRow(0, 0, smile_neutral[0]);
   lc.setRow(0, 1, smile_neutral[1]);
   lc.setRow(0, 2, smile_neutral[2]);
@@ -69,7 +69,7 @@ void loop() {
   lc.setRow(0, 5, smile_neutral[5]);
   lc.setRow(0, 6, smile_neutral[6]);
   lc.setRow(0, 7, smile_neutral[7]);
-  delay(5000);
+  delay(500);
   lc.setRow(0, 0, smile_happy[0]);
   lc.setRow(0, 1, smile_happy[1]);
   lc.setRow(0, 2, smile_happy[2]);
@@ -78,5 +78,5 @@ void loop() {
   lc.setRow(0, 5, smile_happy[5]);
   lc.setRow(0, 6, smile_happy[6]);
   lc.setRow(0, 7, smile_happy[7]);
-  delay(5000);
+  delay(500);
 }
