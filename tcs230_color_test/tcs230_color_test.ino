@@ -9,6 +9,8 @@
 #define S3PIN 11
 #define OUTPIN 12
 
+float r0, g0, b0, c0;
+
 void setup() {
   // Инициализация последовательного порта
   Serial.begin(9600);
@@ -20,14 +22,19 @@ void setup() {
   pinMode(OUTPIN, INPUT);
   digitalWrite(S0PIN, LOW);
   digitalWrite(S1PIN, HIGH);
+  // Нахождениен коэффициентов для исключения сперктальной характеристики окружающего света
+  r0 = 1000 / (float)readRED();
+  g0 = 1000 / (float)readGREEN();
+  b0 = 1000 / (float)readBLUE();
+  c0 = 1000 / (float)readCLEAR();
 }
 
 void loop() {
   // Измерение
-  float clRed = 1000 / (float)readRED();
-  float clGreen = 1000 / (float)readGREEN();
-  float clBlue = 1000 / (float)readBLUE();
-  float clClear = 1000 / (float)readCLEAR();
+  float clRed = 1000 / (float)readRED() - r0;
+  float clGreen = 1000 / (float)readGREEN() - g0;
+  float clBlue = 1000 / (float)readBLUE() - b0;
+  float clClear = 1000 / (float)readCLEAR() - c0;
   String MY_COLOR = "";
   // Вывод интенсивности цветов
   Serial.println("RED: " + String(clRed, 3));
@@ -36,19 +43,19 @@ void loop() {
   Serial.println("CLEAR: " + String(clClear, 3));
   Serial.println();
   // Определение цвета кубика
-  if ((clRed > 0.600) && (clRed < 0.900) && (clGreen > 0.900) && (clGreen < 1.200) && (clBlue > 3.900) && (clBlue < 4.200))
+  if ((clRed > -0.400) && (clRed < 0.400) && (clGreen > 0.200) && (clGreen < 1.000) && (clBlue > 1.300) && (clBlue < 2.100))
   {
     MY_COLOR = "BLUE";
   }
-  else if ((clRed > 0.700) && (clRed < 1.000) && (clGreen > 1.000) && (clGreen < 1.300) && (clBlue > 3.000) && (clBlue < 3.300))
+  else if ((clRed > -0.300) && (clRed < 0.500) && (clGreen > 0.300) && (clGreen < 1.100) && (clBlue > 0.200) && (clBlue < 1.000))
   {
     MY_COLOR = "GREEN";
   }
-  else if ((clRed > 2.900) && (clRed < 3.200) && (clGreen > 0.600) && (clGreen < 0.900) && (clBlue > 4.450) && (clBlue < 4.750))
+  else if ((clRed > 1.900) && (clRed < 2.700) && (clGreen > -0.100) && (clGreen < 0.700) && (clBlue > 0.200) && (clBlue < 1.000))
   {
     MY_COLOR = "RED";
   }
-  else if ((clRed > 4.050) && (clRed < 4.350) && (clGreen > 2.500) && (clGreen < 2.800) && (clBlue > 8.550) && (clBlue < 8.850))
+  else if ((clRed > 2.900) && (clRed < 3.700) && (clGreen > 1.800) && (clGreen < 2.600) && (clBlue > 0.600) && (clBlue < 1.400))
   {
     MY_COLOR = "YELLOW";
   }
@@ -92,4 +99,5 @@ int readCLEAR()
   digitalWrite(S3PIN, LOW);
   return pulseIn(OUTPIN, digitalRead(OUTPIN) == HIGH ? LOW : HIGH);
 }
+
 
