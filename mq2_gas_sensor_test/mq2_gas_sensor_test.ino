@@ -1,5 +1,5 @@
 /*
-  Пример работы с датчиком уровня воды
+  Пример работы с датчиком газа MQ-2
   Created by Rostislav Varzar
 */
 
@@ -16,6 +16,6 @@ void loop() {
   // Измерение
   int sensor_data = analogRead(SENSPIN);
   // Вывод измеренных значений
-  Serial.println("Water level sensor: " + String(sensor_data));
+  Serial.println("MQ-2 sensor: " + String(sensor_data));
   delay(100);
 }

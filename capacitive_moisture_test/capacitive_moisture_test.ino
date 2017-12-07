@@ -4,8 +4,8 @@
 */
 
 #define SENSPIN A0
-const float air_value = 545.0;
-const float water_value = 292.0;
+const float air_value = 549.0;
+const float water_value = 297.0;
 const float moisture_0 = 0.0;
 const float moisture_100 = 100.0;
 
@@ -22,6 +22,7 @@ void loop() {
   float sensor_data = analogRead(SENSPIN);
   float moisture = map(sensor_data, air_value, water_value, moisture_0, moisture_100);
   // Вывод измеренных значений
-  Serial.println("Moisture sensor: " + String(moisture) + " %");
-  delay(100);
+  Serial.println("Raw data: " + String(sensor_data));
+  Serial.println("Moisture: " + String(moisture) + " %");
+  delay(1000);
 }
