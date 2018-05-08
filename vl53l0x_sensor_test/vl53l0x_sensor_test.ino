@@ -16,6 +16,7 @@ void setup() {
   // Инициализация последовательного порта
   Serial.begin(115200);
   // Инициализация датчика
+  Wire.begin();
   lox.init();
   lox.setTimeout(500);
 #if defined LONG_RANGE
