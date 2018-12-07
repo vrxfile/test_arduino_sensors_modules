@@ -11,6 +11,8 @@ void setup() {
   // Инициализация последовательного порта
   Serial.begin(115200);
   // Инициализация датчика
+  Wire.begin(21, 22);
+  Wire.setClock(10000L);
   if (!veml6075.begin())
     Serial.println("VEML6075 not found!");
 }
