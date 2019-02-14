@@ -20,28 +20,73 @@ void setup() {
 }
 
 void loop() {
-  // Плавное загорание/гашение каждого светодиода
-  for (byte channel = 0; channel < 7; channel++)
-  {
-    for (byte pwm = 0; pwm < 0xff; pwm++) {
-      leds.setBrightness(channel, pwm);
-      delay(10);
-    }
-    for (byte pwm = 0xfe; pwm < 0xff; pwm--) {
-      leds.setBrightness(channel, pwm);
-      delay(10);
-    }
-  }
-  // Плавное загорание/гашение каждого всех светодиодов
+  //  // Плавное загорание/гашение каждого светодиода
+  //  for (byte channel = 0; channel < 7; channel++)
+  //  {
+  //    for (byte pwm = 0; pwm < 0xff; pwm++) {
+  //      leds.setBrightness(channel, pwm);
+  //      delay(10);
+  //    }
+  //    for (byte pwm = 0xfe; pwm < 0xff; pwm--) {
+  //      leds.setBrightness(channel, pwm);
+  //      delay(10);
+  //    }
+  //  }
+  //  // Плавное загорание/гашение каждого всех светодиодов
+  //  for (byte pwm = 0; pwm < 0xff; pwm++) {
+  //    leds.setAllBrightness(pwm);
+  //    delay(10);
+  //  }
+  //  for (byte pwm = 0xfe; pwm < 0xff; pwm--) {
+  //    leds.setAllBrightness(pwm);
+  //    delay(10);
+  //  }
   for (byte pwm = 0; pwm < 0xff; pwm++) {
-    leds.setAllBrightness(pwm);
-    delay(10);
+    leds.setBrightness(3, pwm);
+    delay(1);
   }
   for (byte pwm = 0xfe; pwm < 0xff; pwm--) {
-    leds.setAllBrightness(pwm);
-    delay(10);
+    leds.setBrightness(3, pwm);
+    delay(1);
+  }
+
+  for (byte pwm = 0; pwm < 0xff; pwm++) {
+    leds.setBrightness(2, pwm);
+    delay(1);
+  }
+  for (byte pwm = 0xfe; pwm < 0xff; pwm--) {
+    leds.setBrightness(2, pwm);
+    delay(1);
+  }
+
+  for (byte pwm = 0; pwm < 0xff; pwm++) {
+    leds.setBrightness(5, pwm);
+    delay(1);
+  }
+  for (byte pwm = 0xfe; pwm < 0xff; pwm--) {
+    leds.setBrightness(5, pwm);
+    delay(1);
+  }
+
+  for (byte pwm = 0; pwm < 0xff; pwm++) {
+    leds.setBrightness(0, pwm);
+    leds.setBrightness(6, pwm);
+    delay(1);
+  }
+  for (byte pwm = 0xfe; pwm < 0xff; pwm--) {
+    leds.setBrightness(0, pwm);
+    leds.setBrightness(6, pwm);
+    delay(1);
+  }
+
+  for (byte pwm = 0; pwm < 0xff; pwm++) {
+    leds.setBrightness(1, pwm);
+    leds.setBrightness(4, pwm);
+    delay(1);
+  }
+  for (byte pwm = 0xfe; pwm < 0xff; pwm--) {
+    leds.setBrightness(1, pwm);
+    leds.setBrightness(4, pwm);
+    delay(1);
   }
 }
-
-
-
