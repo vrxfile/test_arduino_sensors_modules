@@ -3,99 +3,115 @@
   Created by Rostislav Varzar
 */
 #include <Wire.h>
+#include <Adafruit_PWMServoDriver.h>
 
-#define driver_addr 0x20
-
-uint8_t m_ctl = 0b00000000;
+Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver(0x70);
 
 void setup() {
   // Инициализация последовательного порта
   Serial.begin(115200);
-  // Инициализация датчика
-  init_driver();
-  delay(500);
-  motor1_backward(); delay(500);
-  motor1_forward(); delay(500);
-  motor1_stop(); delay(500);
-  motor2_backward(); delay(500);
-  motor2_forward(); delay(500);
-  motor2_stop(); delay(500);
-  motor1_backward(); motor2_backward(); delay(500);
-  motor1_forward(); motor2_forward(); delay(500);
-  motor1_stop(); motor2_stop(); delay(500);
+  // Инициализация драйвера
+  Wire.begin();
+  pwm.begin();
+  // Частота (Гц)
+  pwm.setPWMFreq(100);
+  // Все порты выключены
+  pwm.setPWM(8, 0, 4096);
+  pwm.setPWM(9, 0, 4096);
+  pwm.setPWM(10, 0, 4096);
+  pwm.setPWM(11, 0, 4096);
 }
 
 void loop() {
+  for (int i = 0; i <= 100; i++) {
+    motorA_setpower(i, false);
+    motorB_setpower(i, true);
+    delay(25);
+  }
+  for (int i = 100; i >= -100; i--) {
+    motorA_setpower(i, false);
+    motorB_setpower(i, true);
+    delay(25);
+  }
+  for (int i = -100; i <= 0; i++) {
+    motorA_setpower(i, false);
+    motorB_setpower(i, true);
+    delay(25);
+  }
+  for (int i = 0; i <= 100; i++) {
+    motorA_setpower(i, false);
+    motorB_setpower(i, false);
+    delay(25);
+  }
+  for (int i = 100; i >= -100; i--) {
+    motorA_setpower(i, false);
+    motorB_setpower(i, false);
+    delay(25);
+  }
+  for (int i = -100; i <= 0; i++) {
+    motorA_setpower(i, false);
+    motorB_setpower(i, false);
+    delay(25);
+  }
+
 }
 
-// Инициализация драйвера
-void init_driver() {
-  Wire.begin();
-  Wire.setClock(100000L);
-  Wire.beginTransmission(driver_addr);
-  Wire.write(0x00);       // Регистр режима работы
-  Wire.write(0b00100000); // Выход прерывания и отклик от разных адресов отключены
-  Wire.endTransmission();
-  Wire.beginTransmission(driver_addr);
-  Wire.write(0x03);       // Конфигурационный регистр
-  Wire.write(0b00001111); // P0 - P3 настроены как входы
-  Wire.endTransmission();
-}
-
-void motor1_backward()
+// Мощность мотора "A" от -100% до +100% (от знака зависит направление вращения)
+void motorA_setpower(float pwr, bool invert)
 {
-  m_ctl = m_ctl & 0b11111100;
-  m_ctl = m_ctl | 0b00000001;
-  Wire.beginTransmission(driver_addr);
-  Wire.write(0x0B);
-  Wire.write(m_ctl);
-  Wire.endTransmission();
+  // Проверка, инвертирован ли мотор
+  if (invert)
+  {
+    pwr = -pwr;
+  }
+  // Проверка диапазонов
+  if (pwr < -100)
+  {
+    pwr = -100;
+  }
+  if (pwr > 100)
+  {
+    pwr = 100;
+  }
+  int pwmvalue = fabs(pwr) * 40.95;
+  if (pwr < 0)
+  {
+    pwm.setPWM(10, 0, 4096);
+    pwm.setPWM(11, 0, pwmvalue);
+  }
+  else
+  {
+    pwm.setPWM(11, 0, 4096);
+    pwm.setPWM(10, 0, pwmvalue);
+  }
 }
 
-void motor1_forward()
+// Мощность мотора "B" от -100% до +100% (от знака зависит направление вращения)
+void motorB_setpower(float pwr, bool invert)
 {
-  m_ctl = m_ctl & 0b11111100;
-  m_ctl = m_ctl | 0b00000010;
-  Wire.beginTransmission(driver_addr);
-  Wire.write(0x0B);
-  Wire.write(m_ctl);
-  Wire.endTransmission();
-}
-
-void motor1_stop()
-{
-  m_ctl = m_ctl & 0b11111100;
-  Wire.beginTransmission(driver_addr);
-  Wire.write(0x0B);
-  Wire.write(m_ctl);
-  Wire.endTransmission();
-}
-
-void motor2_backward()
-{
-  m_ctl = m_ctl & 0b11110011;
-  m_ctl = m_ctl | 0b00000100;
-  Wire.beginTransmission(driver_addr);
-  Wire.write(0x0B);
-  Wire.write(m_ctl);
-  Wire.endTransmission();
-}
-
-void motor2_forward()
-{
-  m_ctl = m_ctl & 0b11110011;
-  m_ctl = m_ctl | 0b00001000;
-  Wire.beginTransmission(driver_addr);
-  Wire.write(0x0B);
-  Wire.write(m_ctl);
-  Wire.endTransmission();
-}
-
-void motor2_stop()
-{
-  m_ctl = m_ctl & 0b11110011;
-  Wire.beginTransmission(driver_addr);
-  Wire.write(0x0B);
-  Wire.write(m_ctl);
-  Wire.endTransmission();
+  // Проверка, инвертирован ли мотор
+  if (invert)
+  {
+    pwr = -pwr;
+  }
+  // Проверка диапазонов
+  if (pwr < -100)
+  {
+    pwr = -100;
+  }
+  if (pwr > 100)
+  {
+    pwr = 100;
+  }
+  int pwmvalue = fabs(pwr) * 40.95;
+  if (pwr < 0)
+  {
+    pwm.setPWM(8, 0, 4096);
+    pwm.setPWM(9, 0, pwmvalue);
+  }
+  else
+  {
+    pwm.setPWM(9, 0, 4096);
+    pwm.setPWM(8, 0, pwmvalue);
+  }
 }
