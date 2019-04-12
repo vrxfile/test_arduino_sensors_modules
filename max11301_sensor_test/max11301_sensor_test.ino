@@ -31,53 +31,57 @@ void setup() {
   Serial.begin(115200);
   // Инициализация датчика
   Wire.begin();
+  Wire.setClock(100000L);
+  delay(100);
   init_sensor();
 }
 
 void loop() {
-  // Измерение
-  poll_sensor();
-  // Вывод измеренных значений в терминал
-  Serial.print(p00);
-  Serial.print("\t\t");
-  Serial.print(p01);
-  Serial.print("\t\t");
-  Serial.print(p02);
-  Serial.print("\t\t");
-  //  Serial.print(String(p03, 0));
-  //  Serial.print("\t");
-  //  Serial.print(String(p04, 0));
-  //  Serial.print("\t");
-  //  Serial.print(String(p05, 0));
-  //  Serial.print("\t");
-  //  Serial.print(String(p06, 0));
-  //  Serial.print("\t");
-  //  Serial.print(String(p07, 0));
-  //  Serial.print("\t");
-  //  Serial.print(String(p08, 0));
-  //  Serial.print("\t");
-  //  Serial.print(String(p09, 0));
-  //  Serial.print("\t");
-  //  Serial.print(String(p10, 0));
-  //  Serial.print("\t");
-  //  Serial.print(String(p11, 0));
-  //  Serial.print("\t");
-  //  Serial.print(String(p12, 0));
-  //  Serial.print("\t");
-  //  Serial.print(String(p13, 0));
-  //  Serial.print("\t");
-  //  Serial.print(String(p14, 0));
-  //  Serial.print("\t");
-  //  Serial.print(String(p15, 0));
-  //  Serial.print("\t");
-  Serial.print(p16);
-  Serial.print("\t\t");
-  Serial.print(p17);
-  Serial.print("\t\t");
-  Serial.print(p18);
-  // Serial.print("\t\t");
-  Serial.println();
-  delay(100);
+  /*
+    // Измерение
+    poll_sensor();
+    // Вывод измеренных значений в терминал
+    Serial.print(p03);
+    Serial.print("\t\t");
+    Serial.print(p04);
+    Serial.print("\t\t");
+    Serial.print(p05);
+    Serial.print("\t\t");
+    //  Serial.print(String(p03, 0));
+    //  Serial.print("\t");
+    //  Serial.print(String(p04, 0));
+    //  Serial.print("\t");
+    //  Serial.print(String(p05, 0));
+    //  Serial.print("\t");
+    //  Serial.print(String(p06, 0));
+    //  Serial.print("\t");
+    //  Serial.print(String(p07, 0));
+    //  Serial.print("\t");
+    //  Serial.print(String(p08, 0));
+    //  Serial.print("\t");
+    //  Serial.print(String(p09, 0));
+    //  Serial.print("\t");
+    //  Serial.print(String(p10, 0));
+    //  Serial.print("\t");
+    //  Serial.print(String(p11, 0));
+    //  Serial.print("\t");
+    //  Serial.print(String(p12, 0));
+    //  Serial.print("\t");
+    //  Serial.print(String(p13, 0));
+    //  Serial.print("\t");
+    //  Serial.print(String(p14, 0));
+    //  Serial.print("\t");
+    //  Serial.print(String(p15, 0));
+    //  Serial.print("\t");
+    Serial.print(p13);
+    Serial.print("\t\t");
+    Serial.print(p14);
+    Serial.print("\t\t");
+    Serial.print(p15);
+    // Serial.print("\t\t");
+    Serial.println();
+    delay(100);
+  */
 }
 
 // Инициализация датчика
@@ -276,24 +280,23 @@ void init_sensor() {
   Wire.endTransmission();
   Wire.beginTransmission(sensor_addr);
   Wire.write(0x32);       // Регистр настройки порта 18 (подключен к оптическому сенсору)
-  Wire.write(0b01110001); // Диапазон входного напряжения 0 ... 10 В, встроенный ИОН, порт в режиме входа АЦП
+  Wire.write(0b01111001); // Диапазон входного напряжения 0 ... 10 В, встроенный ИОН, порт в режиме входа АЦП
   Wire.write(0b11100000); // Порт не ассоциирован с другим портом, количество выборок АЦП - 128
   Wire.endTransmission();
   delay(1500);
-  /*
-    // Отладка регистров
-    int a = 0;
-    int b = 0;
-    Wire.beginTransmission(sensor_addr);
-    Wire.write(0x40); // Регистр данных АЦП
-    Wire.endTransmission();
-    Wire.requestFrom(sensor_addr, 2);
-    Serial.println(Wire.available());
-    a = Wire.read();
-    b = Wire.read();
-    Serial.println(String(a, 2));
-    Serial.println(String(b, 2));
-  */
+  // Отладка регистров
+  int a = 0;
+  int b = 0;
+  Wire.beginTransmission(sensor_addr);
+  Wire.write(0x45); // Регистр данных АЦП
+  Wire.endTransmission();
+  Wire.requestFrom(sensor_addr, 2);
+  Serial.println(Wire.available());
+  a = Wire.read();
+  b = Wire.read();
+  Serial.println(String(a, 2));
+  Serial.println(String(b, 2));
+
 }
 
 // Получение данных с датчика
