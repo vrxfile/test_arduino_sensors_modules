@@ -13,6 +13,12 @@ void setup() {
   Serial.begin(115200);
   // Инициализация датчика
   opt3001.begin(OPT3001_ADDRESS);
+  OPT3001_Config newConfig;
+  newConfig.RangeNumber = B1100;
+  newConfig.ConvertionTime = B0;
+  newConfig.Latch = B1;
+  newConfig.ModeOfConversionOperation = B11;
+  OPT3001_ErrorCode errorConfig = opt3001.writeConfig(newConfig);
 }
 
 void loop() {
