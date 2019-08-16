@@ -34,6 +34,7 @@ void setup() {
 
   // Инициализация I2C
   Wire.begin();
+  delay(1000);
 
   // Инициализация датчика #1
   setBusChannel(0x07);
@@ -111,24 +112,27 @@ void setup() {
   lox4.setMeasurementTimingBudget(200000);
 #endif
 
-  // Инициализация датчика #5
-  setBusChannel(0x03);
-  lox5.init();
-  lox5.setTimeout(500);
-#if defined LONG_RANGE
-  // lower the return signal rate limit (default is 0.25 MCPS)
-  lox5.setSignalRateLimit(0.1);
-  // increase laser pulse periods (defaults are 14 and 10 PCLKs)
-  lox5.setVcselPulsePeriod(VL53L0X::VcselPeriodPreRange, 18);
-  lox5.setVcselPulsePeriod(VL53L0X::VcselPeriodFinalRange, 14);
-#endif
-#if defined HIGH_SPEED
-  // reduce timing budget to 20 ms (default is about 33 ms)
-  lox5.setMeasurementTimingBudget(20000);
-#elif defined HIGH_ACCURACY
-  // increase timing budget to 200 ms
-  lox5.setMeasurementTimingBudget(200000);
-#endif
+  // Не работает на контроллерах Arduino из-за светодиода на порту D13
+  /*
+    // Инициализация датчика #5
+    setBusChannel(0x03);
+    lox5.init();
+    lox5.setTimeout(500);
+    #if defined LONG_RANGE
+    // lower the return signal rate limit (default is 0.25 MCPS)
+    lox5.setSignalRateLimit(0.1);
+    // increase laser pulse periods (defaults are 14 and 10 PCLKs)
+    lox5.setVcselPulsePeriod(VL53L0X::VcselPeriodPreRange, 18);
+    lox5.setVcselPulsePeriod(VL53L0X::VcselPeriodFinalRange, 14);
+    #endif
+    #if defined HIGH_SPEED
+    // reduce timing budget to 20 ms (default is about 33 ms)
+    lox5.setMeasurementTimingBudget(20000);
+    #elif defined HIGH_ACCURACY
+    // increase timing budget to 200 ms
+    lox5.setMeasurementTimingBudget(200000);
+    #endif
+  */
 }
 
 void loop() {
@@ -148,9 +152,13 @@ void loop() {
   setBusChannel(0x04);
   float dist4 = lox4.readRangeSingleMillimeters();
 
-  // Считывание датчика #5
-  setBusChannel(0x03);
-  float dist5 = lox5.readRangeSingleMillimeters();
+  // Не работает на контроллерах Arduino из-за светодиода на порту D13
+  /*
+    // Считывание датчика #5
+    setBusChannel(0x03);
+    float dist5 = lox5.readRangeSingleMillimeters();
+  */
+  float dist5 = 0.00;
 
   // Вывод измеренных значений в терминал
   Serial.print(String(dist1, 0));
