@@ -4,32 +4,44 @@
 */
 #include <Wire.h>
 
-#define driver_addr 0x20
+#define driver_addr_1 0x20
+#define driver_addr_2 0x23
 
 void setup()
 {
   // Инициализация последовательного порта
   Serial.begin(115200);
   // Инициализация датчика
-  init_driver(driver_addr);
+  init_driver(driver_addr_1);
+  delay(500);
+  init_driver(driver_addr_2);
   delay(500);
 }
 
 void loop()
 {
   // Вращение в одну сторону
-  motor_forward(driver_addr, random(1000) + 1, random(64) + 24);
-  while (is_motor_running(driver_addr)) {
+  motor_forward(driver_addr_1, random(1000) + 1, random(64) + 32);
+  motor_forward(driver_addr_2, random(1000) + 1, random(64) + 32);
+  while (is_motor_running(driver_addr_1)) {
+    delay(100); // Ожидание мотора
+  }
+  while (is_motor_running(driver_addr_2)) {
     delay(100); // Ожидание мотора
   }
   delay(500);
   // Вращение в другую сторону
-  motor_backward(driver_addr, random(1000) + 1, random(64) + 24);
-  while (is_motor_running(driver_addr)) {
+  motor_backward(driver_addr_1, random(1000) + 1, random(64) + 32);
+  motor_backward(driver_addr_2, random(1000) + 1, random(64) + 32);
+  while (is_motor_running(driver_addr_1)) {
+    delay(100); // Ожидание мотора
+  }
+  while (is_motor_running(driver_addr_2)) {
     delay(100); // Ожидание мотора
   }
   delay(500);
-  // motor_stop(driver_addr); delay(500);
+  // motor_stop(driver_addr_1); delay(500);
+  // motor_stop(driver_addr_2); delay(500);
 }
 
 // Инициализация драйвера
