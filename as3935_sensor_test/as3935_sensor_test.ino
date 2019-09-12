@@ -3,77 +3,119 @@
   Created by Rostislav Varzar
 */
 #include <Wire.h>
+#include <SC18IS602.h>
 
-#define sensor_addr 0x03 // Without jumpers
+SC18IS602 i2cspi = SC18IS602(SC18IS602_ADDRESS_000);
 
 float energy_data = 0;
 float dist_data   = 0;
+float noise_counter = 0;
+float disturber_counter = 0;
+float lightning_counter = 0;
 
-void setup() {
+void setup()
+{
   // Инициализация последовательного порта
   Serial.begin(115200);
-  // Инициализация датчика
-  init_sensor();
-  delay(500);
-}
 
-void loop() {
-  // Измерение
-  poll_sensor();
-  // Вывод измеренных значений в терминал
+  // Инициализация микросхемы SPI
+  i2cspi.begin(SC18IS602_SS_2);
+  i2cspi.setBitOrder(MSBFIRST);
+  i2cspi.setDataMode(SC18IS602_SPI_MODE1);
+  i2cspi.setClockDivider(SC18IS602_CLOCK_58K);
+
+  // Инициализация датчика
+  if (!(init_as3935()))
+    Serial.println("Sensor not found!");
+  delay(500);
+
+  // Вывод начальных значений
   Serial.println("ENERGY   = " + String(energy_data, 1));
   Serial.println("DISTANCE = " + String(dist_data, 1));
-  delay(350);
+  Serial.println("NOISE COUNTER = " + String(noise_counter, 1));
+  Serial.println("DISTURBER COUNTER = " + String(disturber_counter, 1));
+  Serial.println("LIGHTNING COUNTER = " + String(lightning_counter, 1));
+  Serial.println();
+}
+
+void loop()
+{
+  // Измерение
+  if (poll_sensor()) // Выводить данные, только если возникло событие
+  {
+    // Вывод измеренных значений в терминал
+    Serial.println("ENERGY   = " + String(energy_data, 1));
+    Serial.println("DISTANCE = " + String(dist_data, 1));
+    Serial.println("NOISE COUNTER = " + String(noise_counter, 1));
+    Serial.println("DISTURBER COUNTER = " + String(disturber_counter, 1));
+    Serial.println("LIGHTNING COUNTER = " + String(lightning_counter, 1));
+    Serial.println();
+  }
 }
 
 // Инициализация датчика
-void init_sensor() {
-  Wire.begin();
-  Wire.beginTransmission(sensor_addr);
-  Wire.write(0x00);       // Регистр управления усилителем и спящим режимом
-  Wire.write(0b00100100); // Активный режим, AFE = 0b10010
-  Wire.endTransmission();
-  Wire.beginTransmission(sensor_addr);
-  Wire.write(0x01);       // Регистр шумоподавления и watchdog
-  Wire.write(0b00100010); // NFL = 0b010, WD = 0b0010
-  Wire.endTransmission();
-  Wire.beginTransmission(sensor_addr);
-  Wire.write(0x02);       // Регистр настройки распознавания сигнала
-  Wire.write(0b11000010); // Минимальное количество импульсов = 0, уменьшение чувсвтительности к искрам 0b0010
-  Wire.endTransmission();
-  Wire.beginTransmission(sensor_addr);
-  Wire.write(0x03);       // Регистр настройки антенны
-  Wire.write(0b00000000); // По умолчанию всё "0"
-  Wire.endTransmission();
-  Wire.beginTransmission(sensor_addr);
-  Wire.write(0x08);       // Регистр настройки конденсатора колебательного контура
-  Wire.write(0b00000000); // По умолчанию всё "0"
-  Wire.endTransmission();
-  // Или установка всего по умолчанию
-  Wire.beginTransmission(sensor_addr);
-  Wire.write(0x3C);
-  Wire.write(0x96);
-  Wire.endTransmission();
-  Wire.beginTransmission(sensor_addr);
-  Wire.write(0x3D);
-  Wire.write(0x96);
-  Wire.endTransmission();
+int init_as3935()
+{
+  uint8_t result = 0x00;
+  uint8_t data[] = {0x00, 0x00};
+  uint8_t init_flag = 0;
+
+  // Инициализцаия и установка значений регистров по умолчанию
+  data[0] = 0x3C;
+  data[1] = 0x96;
+  result = i2cspi.transfer(data, 0x02);
+  if (result == 0x02)
+    init_flag = 1;
+  else
+    init_flag = 0;
+  return init_flag;
 }
 
 // Получение данных с датчика
-void poll_sensor() {
-  unsigned int sensor_data[4];
-  Wire.beginTransmission(sensor_addr);
-  Wire.write(0x04); // Регистр данных
-  Wire.endTransmission();
-  Wire.requestFrom(sensor_addr, 4);
-  if (Wire.available() == 4) {
-    sensor_data[0] = Wire.read();
-    sensor_data[1] = Wire.read();
-    sensor_data[2] = Wire.read();
-    sensor_data[3] = Wire.read();
-  }
-  energy_data = (float)sensor_data[2] * 65536.0 + (float)sensor_data[1] * 256.0 + (float)sensor_data[0];
-  dist_data = (float)sensor_data[3];
-}
+int poll_sensor()
+{
+  uint8_t result = 0x00;
+  uint8_t data[] = {0x00, 0x00};
+  uint8_t int_flag = 0;
+  // Чтение регистра прерываний 0x03
+  data[0] = 0x03 | 0b01000000;
+  data[1] = 0xFF;
+  result = i2cspi.transfer(data, 0x02);
+  // Если возникло прерывание, то определяем какое, увеличиваем счетчики и считывание другие регистры
+  if (data[1] & 0b1111)
+  {
+    int_flag = 1;
 
+    // Подсчет событий
+    if (data[1] & 0b1)
+      noise_counter = noise_counter + 1;
+    if (data[1] & 0b100)
+      disturber_counter = disturber_counter + 1;
+    if (data[1] & 0b1000)
+      lightning_counter = lightning_counter + 1;
+
+    // Энергия разряда
+    data[0] = 0x04 | 0b01000000;
+    data[1] = 0xFF;
+    result = i2cspi.transfer(data, 0x02);
+    energy_data = data[1];
+    // Serial.println(data[1]);
+    data[0] = 0x05 | 0b01000000;
+    data[1] = 0xFF;
+    result = i2cspi.transfer(data, 0x02);
+    energy_data = energy_data + ((float)data[1]) * 256.0;
+    // Serial.println(data[1]);
+    data[0] = 0x06 | 0b01000000;
+    data[1] = 0xFF;
+    result = i2cspi.transfer(data, 0x02);
+    energy_data = energy_data + ((float)data[1]) * 65536.0;
+    // Serial.println(data[1]);
+
+    // Расстояния до разряда
+    data[0] = 0x07 | 0b01000000;
+    data[1] = 0xFF;
+    result = i2cspi.transfer(data, 0x02);
+    dist_data = data[1];
+  }
+  return int_flag;
+}
